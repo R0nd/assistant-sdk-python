@@ -28,7 +28,7 @@ from google.assistant.library import Assistant
 from google.assistant.library.event import EventType
 from google.assistant.library.file_helpers import existing_file
 
-
+nuc_led_file = "/proc/acpi/nuc_led"
 DEVICE_API_URL = 'https://embeddedassistant.googleapis.com/v1alpha2'
 
 
@@ -57,12 +57,16 @@ def process_event(event, device_id):
         event(event.Event): The current event to process.
     """
     if event.type == EventType.ON_CONVERSATION_TURN_STARTED:
+        with open(nuc_led_file, "w") as nuc_led:
+            print("ring,50,fade_medium,cyan", file=nuc_led)
         print()
 
     print(event)
 
     if (event.type == EventType.ON_CONVERSATION_TURN_FINISHED and
             event.args and not event.args['with_follow_on_turn']):
+        with open(nuc_led_file, "w") as nuc_led:
+            print("ring,0,none,off", file=nuc_led)
         print()
     if event.type == EventType.ON_DEVICE_ACTION:
         for command, params in process_device_actions(event, device_id):
